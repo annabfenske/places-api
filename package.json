@@ -1,0 +1,27 @@
+{
+  "name": "places-api",
+  "version": "1.0.0",
+  "description": "API for Places app",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"No test specified\"",
+    "start": "nodemon server.js --exec babel-node --presets es2015,stage-2"
+  },
+  "author": "Anna Fenske",
+  "license": "ISC",
+  "dependencies": {
+    "apollo-server-express": "^2.1.0",
+    "body-parser": "^1.18.3",
+    "express": "^4.16.4",
+    "express-graphql": "^0.6.12",
+    "graphql": "^14.0.2",
+    "graphql-server-express": "^1.4.0",
+    "knex": "^0.15.2"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-stage-2": "^6.24.1",
+    "nodemon": "^1.18.4"
+  }
+}
