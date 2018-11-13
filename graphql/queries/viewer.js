@@ -1,5 +1,6 @@
 import joinMonster from 'join-monster'
 import escape from 'pg-escape'
+import knex from '../../connectors/postgres'
 import Viewer from '../types/Viewer'
 
 export default {

@@ -16,7 +16,7 @@ export const getUserById = (id, fields = '*') => {
 
 export const getUserByEmail = (email, fields = '*') => {
   return knex('users')
-    .where('email', email)
+    .where('email', 'ILIKE', email)
     .select(fields)
     .then(rows => rows[0])
 }

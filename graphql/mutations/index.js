@@ -1,5 +1,5 @@
-import ViewerMutations from './viewer'
+import AuthMutations from './auth'
 
 export default {
-  ...ViewerMutations
+  ...AuthMutations
 }
