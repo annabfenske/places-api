@@ -15,7 +15,7 @@ app.use(
   '/graphql',
   bodyParser.json(),
   graphqlExpress(async (req, res) => {
-    const token = req.headers.token || req.cookies.token
+    const token = req.headers.places_token || req.cookies.places_token
     const warden = await fetchWarden(token, res)
     let options = {
       schema,
