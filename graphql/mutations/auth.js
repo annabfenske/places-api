@@ -13,7 +13,7 @@ import {
   createUser,
   getUserByEmail
 } from '../../db/users'
-import { authenticate } from '../../lib/auth'
+import { authenticate, nomNom } from '../../lib/auth'
 import { ADMIN_EMAIL } from '../../lib/constants'
 
 export default {
@@ -156,6 +156,22 @@ export default {
 
       } catch (err) {
         console.log('login error: ', err)
+        return err
+      }
+    }
+  },
+  logout: {
+    description: 'Log out of the app.',
+    type: new GraphQLNonNull(AuthResponse),
+    resolve: async (warden, args, context, info) => {
+      try {
+        nomNom(context.res)
+        return {
+          success: true,
+          message: 'User successfully logged out'
+        }
+      } catch (err) {
+        console.log('logout error: ', err)
         return err
       }
     }
