@@ -1,9 +1,7 @@
-import { buildSchema } from 'graphql'
+import { GraphQLSchema } from 'graphql'
+import { Query, Mutation } from './types'
 
-const rootSchema = `
-  type Query {
-    hello: String
-  }
-`
-
-export default buildSchema(rootSchema)
+export default new GraphQLSchema({
+  query: Query,
+  mutation: Mutation
+})

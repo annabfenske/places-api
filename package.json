@@ -5,23 +5,34 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"No test specified\"",
-    "start": "nodemon server.js --exec babel-node --presets es2015,stage-2"
+    "dev": ". ./config/dev.env && nodemon server.js --exec babel-node --presets es2015,stage-2",
+    "start": ". ./config/prod.env && nodemon server.js --exec babel-node --presets es2015,stage-2",
+    "migrate-dev": ". ./config/dev.env && knex migrate:latest",
+    "rollback-dev": ". ./config/dev.env && knex migrate:rollback"
   },
   "author": "Anna Fenske",
   "license": "ISC",
   "dependencies": {
     "apollo-server-express": "^2.1.0",
+    "async": "2.6.0",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "express-graphql": "^0.6.12",
     "graphql": "^14.0.2",
     "graphql-server-express": "^1.4.0",
-    "knex": "^0.15.2"
+    "join-monster": "^2.1.0",
+    "jwt-simple": "^0.5.5",
+    "knex": "^0.15.2",
+    "moment": "^2.22.2",
+    "pg": "^7.5.0",
+    "pg-escape": "^0.2.0",
+    "prompt": "1.0.0"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-preset-es2015": "^6.24.1",
     "babel-preset-stage-2": "^6.24.1",
+    "dotenv": "^6.1.0",
     "nodemon": "^1.18.4"
   }
 }
