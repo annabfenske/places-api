@@ -1,7 +1,6 @@
-import { GraphQLObjectType } from 'graphql'
 import joinMonster from 'join-monster'
 import escape from 'pg-escape'
-import { Viewer } from '../types'
+import Viewer from '../types/Viewer'
 
 export default {
   viewer: {

@@ -2,12 +2,12 @@ import {
   GraphQLString,
   GraphQLNonNull
 } from 'graphql'
-import { Viewer } from '../types'
+import Viewer from '../types/Viewer'
 import { createUser } from '../../db/users'
 
 export default {
   sign_up: {
-    description: 'Sign up as a new user'
+    description: 'Sign up as a new user',
     type: Viewer,
     args: {
       first_name: {
@@ -28,7 +28,7 @@ export default {
         return new Error('Please log out before signing up as a new user.')
       }
 
-      let { id } = await createUser(args)
+      // let { id } = await createUser(args)
 
       // TODO: authenticate
     }

@@ -4,7 +4,7 @@ import { createServer } from 'http'
 import bodyParser from 'body-parser'
 
 import schema from './graphql/schema'
-import fetchWarden from './lib/warden'
+import { fetchWarden } from './lib/warden'
 
 const app = express()
 const PORT = process.env.PORT || 3000

@@ -8,13 +8,16 @@
     "dev": ". ./config/dev.env && nodemon server.js --exec babel-node --presets es2015,stage-2",
     "start": ". ./config/prod.env && nodemon server.js --exec babel-node --presets es2015,stage-2",
     "migrate-dev": ". ./config/dev.env && knex migrate:latest",
-    "rollback-dev": ". ./config/dev.env && knex migrate:rollback"
+    "rollback-dev": ". ./config/dev.env && knex migrate:rollback",
+    "migrate": ". ./config/prod.env && knex migrate:latest",
+    "rollback": ". ./config/prod.env && knex migrate:rollback"
   },
   "author": "Anna Fenske",
   "license": "ISC",
   "dependencies": {
     "apollo-server-express": "^2.1.0",
     "async": "2.6.0",
+    "bcrypt": "^3.0.2",
     "body-parser": "^1.18.3",
     "express": "^4.16.4",
     "express-graphql": "^0.6.12",
