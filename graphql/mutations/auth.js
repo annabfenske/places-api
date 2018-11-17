@@ -127,10 +127,11 @@ export default {
     resolve: async (warden, args, context, info) => {
       try {
         if (warden.isAuthenticated()) {
-          return {
-            success: false,
-            message: 'You are already logged in!'
-          }
+          nomNom(context.res)
+          // return {
+          //   success: false,
+          //   message: 'You are already logged in!'
+          // }
         }
 
         let authResult = await authenticate(
@@ -143,7 +144,7 @@ export default {
         if (authResult.error || !authResult.token || !authResult.user) {
           return {
             success: false,
-            message: authResult.error || 'Unable to log in.'
+            message: authResult.error || 'I was unable to process your request.'
           }
         }
 
