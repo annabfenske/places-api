@@ -27,9 +27,11 @@
     "jwt-simple": "^0.5.5",
     "knex": "^0.15.2",
     "moment": "^2.22.2",
+    "node-fetch": "^2.3.0",
     "pg": "^7.5.0",
     "pg-escape": "^0.2.0",
-    "prompt": "1.0.0"
+    "prompt": "1.0.0",
+    "qs": "^6.5.2"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
