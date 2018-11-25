@@ -3,8 +3,7 @@ import bcrypt from 'bcrypt'
 import {
   GraphQLString,
   GraphQLBoolean,
-  GraphQLNonNull,
-  GraphQLObjectType
+  GraphQLNonNull
 } from 'graphql'
 import Viewer from '../types/Viewer'
 import AuthResponse from '../types/AuthResponse'

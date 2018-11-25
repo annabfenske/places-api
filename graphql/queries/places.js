@@ -12,6 +12,7 @@ import qs from 'qs'
 import Place from '../types/Place'
 import { BoundingBoxInput, PointInput } from '../inputTypes'
 
+import { isValidLocation } from '../../lib/validation'
 import { MAPBOX_TYPES } from '../../lib/constants'
 
 export default {
@@ -48,12 +49,7 @@ export default {
           limit
         } = args
 
-        if (
-          location.lng < -180 ||
-          location.lng > 180 ||
-          location.lat < -90 ||
-          location.lat > 90
-        ) {
+        if (!isValidLocation(args.location)) {
           return new Error('Invalid location')
         }
 
