@@ -1,8 +1,12 @@
 import {
   GraphQLObjectType,
   GraphQLString,
-  GraphQLNonNull
+  GraphQLNonNull,
+  GraphQLList
 } from 'graphql'
+import escape from 'pg-escape'
+
+import UserCategory from './UserCategory'
 
 export default new GraphQLObjectType({
   description: 'The authenticated Places user making each request',
@@ -21,6 +25,11 @@ export default new GraphQLObjectType({
     },
     last_name: {
       type: new GraphQLNonNull(GraphQLString)
+    },
+    categories: {
+      type: new GraphQLList(UserCategory),
+      sqlJoin: (userTable, categoryTable) =>
+        escape(`${userTable}.id = ${categoryTable}.user_id`)
     }
   })
 })
