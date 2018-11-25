@@ -28,6 +28,16 @@ export default new GraphQLObjectType({
     },
     categories: {
       type: new GraphQLList(UserCategory),
+      args: {
+        id: GraphQLString
+      },
+      // TODO: test this
+      where: (categoryTable, args) => {
+        if (args.id) {
+          return escape(`${categoryType}.id = %L`, args.id)
+        }
+        return 'true'
+      },
       sqlJoin: (userTable, categoryTable) =>
         escape(`${userTable}.id = ${categoryTable}.user_id`)
     }
