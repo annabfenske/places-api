@@ -24,10 +24,10 @@ export default {
       name: {
         type: new GraphQLNonNull(GraphQLString)
       },
-      icon: {
+      icon_id: {
         type: new GraphQLNonNull(GraphQLString)
       },
-      color: {
+      color_id: {
         type: new GraphQLNonNull(GraphQLString)
       }
     },
@@ -57,7 +57,7 @@ export default {
   },
   update_category: {
     description: 'Edit an existing category',
-    type: UserCategory,
+    type: Viewer,
     args: {
       id: {
         type: new GraphQLNonNull(GraphQLString)
@@ -65,15 +65,32 @@ export default {
       name: {
         type: GraphQLString
       },
-      icon: {
+      icon_id: {
+        type: GraphQLString
+      },
+      color_id: {
         type: GraphQLString
       }
     },
-    where: (categoryTable, args) => {
-      return escape(`${categoryTable}.id = %L`, args.id)
+    where: (usersTable, args, warden) => {
+      return escape(`${usersTable}.id = %L`, warden.user.id)
     },
     resolve: async (warden, args, context, info) => {
       try {
+
+        if (!warden.isAuthenticated()) {
+          return new Error('Not Authenticated')
+        }
+
+        let category = await getCategoryById(args.id, 'user_id')
+
+        if (!category) {
+          return new Error('Category does not exist')
+        }
+
+        if (category.user_id !== warden.user.id) {
+          return new Error('Not Authorized')
+        }
 
         let updateFields = {}
 
@@ -81,15 +98,19 @@ export default {
           updateFields.name = args.name
         }
 
-        if (args.icon) {
-          updateFields.icon = args.icon
+        if (args.icon_id) {
+          updateFields.icon_id = args.icon_id
+        }
+
+        if (args.color_id) {
+          updateFields.color_id = args.color_id
         }
 
         await updateCategoryById(args.id, updateFields, 'id')
 
         return joinMonster(info, warden, sql => knex.raw(sql))
       } catch (err) {
-        console.log('edit_category err:', err)
+        console.log('update_category err:', err)
         return err
       }
     }

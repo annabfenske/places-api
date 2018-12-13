@@ -29,7 +29,9 @@ export default new GraphQLObjectType({
     categories: {
       type: new GraphQLList(UserCategory),
       args: {
-        id: GraphQLString
+        id: {
+          type: GraphQLString
+        }
       },
       // TODO: test this
       where: (categoryTable, args) => {

@@ -3,10 +3,13 @@ import {
   GraphQLString,
   GraphQLInt,
   GraphQLFloat,
+  GraphQLBoolean,
   GraphQLNonNull,
   GraphQLList
 } from 'graphql'
 import Point from './Point'
+
+import { hasUserAddedPlace } from '../../db/userPlaces'
 
 export default new GraphQLObjectType({
   description: 'A place on the map (returned by MapBox request)',
@@ -90,6 +93,17 @@ export default new GraphQLObjectType({
         lng: place.center[0],
         lat: place.center[1]
       })
+    },
+    added: {
+      description: 'Whether or not the viewer has added this place already',
+      type: new GraphQLNonNull(GraphQLBoolean),
+      resolve: (place, args, { warden, ...context }, info) => {
+        if (!warden.isAuthenticated()) {
+          return false
+        }
+
+        return hasUserAddedPlace(warden.user.id, place.id)
+      }
     }
   })
 })

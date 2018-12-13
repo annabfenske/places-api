@@ -7,6 +7,8 @@ import {
 import escape from 'pg-escape'
 
 import UserPlace from './UserPlace'
+import Icon from './Icon'
+import Color from './Color'
 
 export default new GraphQLObjectType({
   description: 'A category of places saved by a user',
@@ -23,11 +25,15 @@ export default new GraphQLObjectType({
     },
     icon: {
       description: 'The icon to display for this category',
-      type: new GraphQLNonNull(GraphQLString)
+      type: new GraphQLNonNull(Icon),
+      sqlJoin: (categoryTable, iconTable) =>
+        escape(`${categoryTable}.icon_id = ${iconTable}.id`)
     },
     color: {
       description: 'The hex code for the color to display for this category',
-      type: new GraphQLNonNull(GraphQLString)
+      type: new GraphQLNonNull(Color),
+      sqlJoin: (categoryTable, colorTable) =>
+        escape(`${categoryTable}.color_id = ${colorTable}.id`)
     },
     places: {
       description: 'The places in this category',

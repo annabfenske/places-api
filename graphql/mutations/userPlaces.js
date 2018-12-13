@@ -7,7 +7,7 @@ import {
   GraphQLNonNull
 } from 'graphql'
 import Viewer from '../types/Viewer'
-import { PointInput } from '../../inputTypes'
+import { PointInput } from '../inputTypes'
 
 import {
   createCategory,
@@ -53,7 +53,7 @@ export default {
 
         if (
           !category ||
-          category.user_id !== warden.user.id)
+          category.user_id !== warden.user.id
         ) {
           return new Error('Category not found')
         }
