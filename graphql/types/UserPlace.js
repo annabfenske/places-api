@@ -2,8 +2,7 @@ import {
   GraphQLObjectType,
   GraphQLString,
   GraphQLFloat,
-  GraphQLNonNull,
-  GraphQLList
+  GraphQLNonNull
 } from 'graphql'
 
 export default new GraphQLObjectType({
@@ -16,7 +15,7 @@ export default new GraphQLObjectType({
       type: new GraphQLNonNull(GraphQLString)
     },
     place_id: {
-      description: 'The Mapbox place id',
+      description: 'The Foursquare venue id',
       type: new GraphQLNonNull(GraphQLString)
     },
     name: {

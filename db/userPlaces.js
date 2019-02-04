@@ -21,6 +21,7 @@ export const hasUserAddedPlace = async (user_id, place_id) => {
     .where('user_categories.user_id', user_id)
     .select('user_places.id')
     .limit(1)
+    .then(rows => rows[0])
 
   if (place) {
     return true

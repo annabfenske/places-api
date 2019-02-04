@@ -1,7 +1,5 @@
 import {
   GraphQLString,
-  GraphQLFloat,
-  GraphQLBoolean,
   GraphQLInt,
   GraphQLNonNull,
   GraphQLList
@@ -10,10 +8,9 @@ import fetch from 'node-fetch'
 import qs from 'qs'
 
 import Place from '../types/Place'
-import { BoundingBoxInput, PointInput } from '../inputTypes'
+import { PointInput } from '../inputTypes'
 
 import { isValidLocation } from '../../lib/validation'
-import { MAPBOX_TYPES } from '../../lib/constants'
 
 export default {
   places: {
@@ -24,12 +21,6 @@ export default {
       },
       keyword: {
         type: new GraphQLNonNull(GraphQLString)
-      },
-      types: {
-        type: new GraphQLList(GraphQLString)
-      },
-      autocomplete: {
-        type: GraphQLBoolean
       },
       limit: {
         type: GraphQLInt
@@ -44,8 +35,6 @@ export default {
         let {
           location,
           keyword,
-          types,
-          autocomplete,
           limit
         } = args
 
@@ -54,31 +43,19 @@ export default {
         }
 
         let queryVals = {
-          access_token: process.env.MAPBOX_KEY,
-          fuzzyMatch: false,
-          proximity: `${location.lng},${location.lat}`
-        }
-
-        if (types != null) {
-          types = types.map(t => t.toLowerCase())
-          if (
-            types.some(type => MAPBOX_TYPES.indexOf(type) === -1)
-          ) {
-            return new Error('Invalid types')
-          }
-
-          queryVals.types = types.join(',')
-        } else {
-          queryVals.types = 'poi'
-        }
-
-        if (autocomplete != null) {
-          queryVals.autocomplete = autocomplete
+          client_id: process.env.FOURSQUARE_CLIENT_ID,
+          client_secret: process.env.FOURSQUARE_CLIENT_SECRET,
+          v: process.env.FOURSQUARE_API_VERSION,
+          intent: 'browse',
+          ll: `${location.lat},${location.lng}`,
+          radius: 7000,
+          categoryId: '4d4b7105d754a06376d81259,4d4b7105d754a06374d81259',  // TODO: pass in as args?
+          query: keyword
         }
 
         if (
           limit != null &&
-          limit <= 10 &&
+          limit <= 50 &&
           limit > 0
         ) {
           queryVals.limit = limit
@@ -88,17 +65,16 @@ export default {
 
         let query = qs.stringify(queryVals)
 
-        // TODO: clean keyword
-
         let result = await fetch(
-          `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(keyword)}.json?${query}`
+          `${process.env.FOURSQUARE_API_URL}/venues/search?${query}`
         ).then(res => res.json())
 
-        if (!result.features) {
-          return new Error(result.message || 'Not Found')
+        if (result.meta.code !== 200)  {
+          console.log('ERROR: ', result)
+          return new Error(result.meta.errorType)
         }
 
-        return result.features
+        return result.response.venues || []
 
       } catch (err) {
         console.log('search_places error: ', err)
