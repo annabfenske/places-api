@@ -7,14 +7,22 @@ import {
   GraphQLList
 } from 'graphql'
 import Point from './Point'
-import FoursquareCategory from './FoursquareCategory'
+import {
+  FoursquareCategory,
+  FoursquareContact,
+  FoursquareHours,
+  FoursquarePhoto,
+  FoursquarePrice
+} from './FoursquareMetadata'
 import UserCategory from './UserCategory'
 
 import { hasUserAddedPlace } from '../../db/userPlaces'
 import { getCategoriesByPlaceId } from '../../db/userCategories'
 
+import { foursquareFetch } from '../../lib/foursquare'
+
 export default new GraphQLObjectType({
-  description: 'A place on the map (returned by MapBox request)',
+  description: 'A place on the map (returned by Foursquare request)',
   name: 'Place',
   fields: () => ({
     id: {
@@ -63,13 +71,78 @@ export default new GraphQLObjectType({
       type: new GraphQLList(GraphQLString),
       resolve: place => place.location.formattedAddress
     },
+    timeZone: {
+      description: 'The time zone in which this place exists',
+      type: GraphQLString
+    },
     location: {
       description: 'The lat,lng coordinates for this place',
       type: new GraphQLNonNull(Point),
       resolve: (place) => ({
-        lng: place.location.lat,
-        lat: place.location.lng
+        lng: place.location.lng,
+        lat: place.location.lat
       })
+    },
+    url: {
+      description: 'URL of the place\'s website',
+      type: GraphQLString
+    },
+    description: {
+      description: 'The description of the venue provided by the venue owner',
+      type: GraphQLString
+    },
+    verified: {
+      description: 'Whether or not the owner of the business has verified the business on foursquare',
+      type: GraphQLBoolean
+    },
+    contact: {
+      description: 'Contact info of the place',
+      type: FoursquareContact
+    },
+    price: {
+      description: 'Price tier for this place',
+      type: FoursquarePrice
+    },
+    openHours: {
+      description: 'The hours the place is open',
+      type: FoursquareHours,
+      resolve: async (place) => {
+        try {
+          let response = await foursquareFetch(`/venues/${place.id}/hours`)
+          return response
+        } catch (err) {
+          return null
+        }
+      }
+    },
+    foursquarePhotos: {
+      description: 'The photos added on Foursquare for this place',
+      type: new GraphQLObjectType({
+        name: 'Place_foursquarePhotos',
+        fields: {
+          count: {
+            type: GraphQLInt
+          },
+          items: {
+            type: new GraphQLList(FoursquarePhoto)
+          }
+        }
+      }),
+      resolve: (place) => {
+        if (!place.photos || !place.photos.groups.some(({ type }) => type === 'venue')) {
+          return {
+            count: 0,
+            items: []
+          }
+        }
+
+        return place.photos.groups.find(({ type }) => type === 'venue')
+      }
+    },
+    bestFoursquarePhoto: {
+      description: 'The best photo as specified by Foursquare',
+      type: FoursquarePhoto,
+      resolve: (place) => place.bestPhoto
     },
     added: {
       description: 'Whether or not the viewer has added this place already',
