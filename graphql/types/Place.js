@@ -1,6 +1,7 @@
 import {
   GraphQLObjectType,
   GraphQLInt,
+  GraphQLFloat,
   GraphQLString,
   GraphQLBoolean,
   GraphQLNonNull,
@@ -14,6 +15,7 @@ import {
   FoursquarePhoto,
   FoursquarePrice
 } from './FoursquareMetadata'
+import { YelpHours, YelpCategory } from './Yelp'
 import UserCategory from './UserCategory'
 
 import { hasUserAddedPlace } from '../../db/userPlaces'
@@ -172,6 +174,115 @@ export default new GraphQLObjectType({
         }
 
         return getCategoriesByPlaceId(warden.user.id, place.id, args)
+      }
+    }
+  })
+})
+
+export const YelpPlace = new GraphQLObjectType({
+  name: 'YelpPlace',
+  description: 'A business returned by Yelp Fusion API',
+  fields: _ => ({
+    id: {
+      type: new GraphQLNonNull(GraphQLString)
+    },
+    name: {
+      type: new GraphQLNonNull(GraphQLString)
+    },
+    price: {
+      type: GraphQLString
+    },
+    url: {
+      type: GraphQLString
+    },
+    phone: {
+      type: GraphQLString
+    },
+    display_phone: {
+      type: GraphQLString
+    },
+    display_address: {
+      description: 'The formatted address for this place',
+      type: new GraphQLList(GraphQLString),
+      resolve: place => place.location.display_address
+    },
+    is_claimed: {
+      type: GraphQLBoolean
+    },
+    rating: {
+      type: GraphQLFloat
+    },
+    image_url: {
+      type: GraphQLString
+    },
+    photos: {
+      type: new GraphQLList(GraphQLString)
+    },
+    categories: {
+      type: new GraphQLList(YelpCategory)
+    },
+    location: {
+      type: new GraphQLNonNull(Point),
+      resolve: place => ({
+        lat: place.coordinates.latitude,
+        lng: place.coordinates.longitude
+      })
+    },
+    hours: {
+      type: new GraphQLList(YelpHours)
+    },
+    added: {
+      description: 'Whether or not the viewer has added this place already',
+      type: new GraphQLNonNull(GraphQLBoolean),
+      resolve: (place, args, { warden, ...context }, info) => {
+        if (!warden.isAuthenticated()) {
+          return false
+        }
+
+        return hasUserAddedPlace(warden.user.id, place.id)
+      }
+    },
+    userCategories: {
+      description: 'The category/categories the viewer has added this place to',
+      type: new GraphQLList(UserCategory),
+      args: {
+        limit: {
+          type: GraphQLInt
+        },
+        offset: {
+          type: GraphQLInt
+        }
+      },
+      resolve: (place, args, { warden, ...context }, info) => {
+        if (!warden.isAuthenticated()) {
+          return null
+        }
+
+        return getCategoriesByPlaceId(warden.user.id, place.id, args)
+      }
+    }
+  })
+})
+
+export const YelpSearchResponse = new GraphQLObjectType({
+  name: 'YelpSearchResponse',
+  fields: _ => ({
+    total: {
+      type: GraphQLInt
+    },
+    businesses: {
+      type: new GraphQLList(YelpPlace)
+    },
+    regionCenter: {
+      type: Point,
+      resolve: (response) => {
+        if (response.regionCenter) {
+          return response.regionCenter
+        }
+        return {
+          lat: response.region.center.latitude,
+          lng: response.region.center.longitude
+        }
       }
     }
   })
