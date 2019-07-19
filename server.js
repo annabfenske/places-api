@@ -1,65 +1,51 @@
 import express from 'express'
-import { ApolloServer, graphqlExpress, graphiqlExpress } from 'apollo-server-express'
-import { createServer } from 'http'
-import bodyParser from 'body-parser'
+import { ApolloServer } from 'apollo-server-express'
 import cookieParser from 'cookie-parser'
 
 import { makeSchema } from './graphql/schema'
 import { fetchWarden } from './lib/warden'
 
-const app = express()
-const PORT = process.env.PORT || 3000
-app.use(cookieParser())
+const startServer = async () => {
+  try {
+    let schema = await makeSchema()
+    
+    const app = express()
+    const PORT = process.env.PORT || 3000
+    app.use('/graphql', cookieParser())
 
-// const runServer = async _ => {
-//   const schema = await makeSchema()
-//   const server = new ApolloServer({
-//     schema,
-//     context: async ({ req, res }) => {
-//       const token = req.headers.places_token || req.cookies.places_token
-//       const warden = await fetchWarden(token, res)
-      
-//       return { res, req, token, warden }
-//     }
-//   })
-
-//   server.applyMiddleware({ app })
-
-//   app.listen({ port: PORT }, () => {
-//     console.log(`pages-api is now running on http://localhost:${PORT}`)
-//   })
-// }
-
-// runServer()
-
-
-app.use(
-  '/graphql',
-  bodyParser.json(),
-  graphqlExpress(async (req, res) => {
-    const token = req.headers.places_token || req.cookies.places_token
-    const warden = await fetchWarden(token, res)
-    const schema = await makeSchema()
-
-    // console.log('SCHEMA', schema)
-    let options = {
+    const apollo = new ApolloServer({
       schema,
-      rootValue: warden,
-      context: { res, req, token, warden },
-      tracing: true
-    }
-    return options
-  })
-)
+      tracing: true,
+      context: async ({ req, res }) => {
+        const token = req.headers.places_token || req.cookies.places_token
+        const warden = await fetchWarden(token, res)
 
-app.use(
-  '/graphiql',
-  graphiqlExpress({
-    endpointURL: '/graphql'
-  })
-)
+        return {
+          warden,
+          req,
+          res,
+          token
+        }
+      },
+      playground: process.env.NODE_ENV === 'production'
+        ? false
+        : {
+          settings: {
+            'request.credentials': 'include'
+          }
+        }
+    })
 
-// const server = createServer(app)
-app.listen(PORT, () => {
-  console.log(`pages-api is now running on http://localhost:${PORT}`)
-})
+    apollo.applyMiddleware({ app })
+
+    app.listen(PORT, () => {
+      console.log(`pages-api is now running on http://localhost:${PORT}`)
+    })
+
+  } catch (err) {
+    console.error(err)
+    process.exit(0)
+  }
+}
+
+startServer()

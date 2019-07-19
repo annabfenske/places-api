@@ -1,16 +1,14 @@
 import { nomNom, authenticate } from "../../../lib/auth"
 
 export default async (root, args, context, info) => {
-  const { warden } = context
   try {
-    if (warden.isAuthenticated()) {
+    if (context.warden.isAuthenticated()) {
       nomNom(context.res)
     }
 
     let authResult = await authenticate(
       args.email,
       args.password,
-      warden,
       context
     )
 
@@ -24,7 +22,7 @@ export default async (root, args, context, info) => {
     return {
       success: true,
       message: 'User successfully authenticated.',
-      viewer: authResult.user,
+      user: authResult.user,
       token: authResult.token
     }
   } catch (err) {

@@ -1,17 +1,13 @@
-import { gql } from 'apollo-server-express'
+import { getBusinessesByCollectionId } from '../../../db/businesses'
 
-export default (yelpSchema, transforms) => ({
-  fragment: gql`... on Collection { id }`,
-  resolve: (collection, args, context, info) => {
-    console.log(info.mergeInfo)
-    return info.mergeInfo.delegateToSchema({
-      schema: yelpSchema,
-      operation: 'query',
-      fieldName: 'search',
-      args,
-      context,
-      info,
-      transforms
-    })
+export default (parent, args, context, info) => {
+  try {
+    if (context.warden && context.warden.isAuthenticated()) {
+      return getBusinessesByCollectionId(parent.id, args)
+    }
+    return null
+  } catch (err) {
+    console.log('Collection.places error: ', err)
+    return null
   }
-})
+}

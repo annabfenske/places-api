@@ -1,7 +1,7 @@
 import knex from '../../../connectors/postgres'
 
 const getSelectedFieldsFromInfo = (info) => {
-  console.log('INFO: ', JSON.stringify(info, null, 2))
+  console.log('INFO: ', JSON.stringify(info.selectionSet, null, 2))
 
   return '*'
 }
@@ -33,7 +33,7 @@ const icons = (root, args, context, info) => {
   let selectedFields = getSelectedFieldsFromInfo(info)
 
   return knex('icons')
-    .first(selectedFields)
+    .select(selectedFields)
 }
 
 export default {

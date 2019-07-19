@@ -1,12 +1,13 @@
 import Query from './Query'
 import Mutation from './Mutation'
-import { linked_Collection } from './Collection'
+import Collection from './Collection'
+import AppUser from './AppUser'
+import Business from './Business'
 
 export default {
   Query,
-  Mutation
+  Mutation,
+  Collection,
+  AppUser,
+  Business
 }
-
-export const linkResolvers = (yelpSchema, transforms) => ({
-  Collection: linked_Collection(yelpSchema, transforms)
-})

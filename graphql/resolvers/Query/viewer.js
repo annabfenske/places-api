@@ -1,15 +1,14 @@
 export default async (root, args, context, info) => {
-  const { warden } = context
   try {
-    if (!warden.isAuthenticated()) {
+    if (!context.warden.isAuthenticated()) {
       return null
     }
 
     return {
-      id: warden.user.id,
-      email: warden.user.email,
-      first_name: warden.user.first_name,
-      last_name: warden.user.last_name
+      id: context.warden.user.id,
+      email: context.warden.user.email,
+      first_name: context.warden.user.first_name,
+      last_name: context.warden.user.last_name
     }
   } catch (err) {
     console.log('viewer error: ', err)

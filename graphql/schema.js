@@ -5,39 +5,42 @@ import {
   makeExecutableSchema,
   makeRemoteExecutableSchema,
   mergeSchemas,
-  introspectSchema,
-  transformSchema,
-  RenameTypes
+  introspectSchema
 } from 'graphql-tools'
-import { gql } from 'apollo-server-express'
 
-import types, { linkTypeDefs } from './types_new'
-import resolvers, { linkResolvers } from './resolvers'
+import types, { linkTypeDefs } from './types'
+import resolvers from './resolvers'
 
-const http = new HttpLink({ uri: process.env.YELP_API_URL + '/graphql', fetch })
+const getYelpSchema = async () => {
+  const http = new HttpLink({ uri: process.env.YELP_API_URL + '/graphql', fetch })
 
-const link = setContext((request, previousContext) => {
-  console.log('PREV CONTEXT: ', previousContext)
-  // if (previousContext.warden && previousContext.warden.isAuthenticated()) {
-    return {
-      headers: {
-        'Authorization': `Bearer ${process.env.YELP_API_KEY}`
+  const link = setContext((request, previousContext) => {
+    if (
+      request.operationName === 'IntrospectionQuery' ||
+      (
+        previousContext.graphqlContext && 
+        previousContext.graphqlContext.warden &&
+        previousContext.graphqlContext.warden.isAuthenticated()
+      )
+    ) {
+      return {
+        headers: {
+          'Authorization': `Bearer ${process.env.YELP_API_KEY}`
+        }
       }
     }
-  // }
-  // return {}
-}).concat(http)
+    return {}
+  }).concat(http)
 
-const getYelpSchema = async _ => {
   const schema = await introspectSchema(link)
-  const yelpSchema = makeRemoteExecutableSchema({ schema, link })
+  const remoteSchema = makeRemoteExecutableSchema({ schema, link })
 
-  return yelpSchema
-
+  return remoteSchema
 }
 
-export const makeSchema = async _ => {
-  const yelpSchema = await getYelpSchema()
+export const makeSchema = async () => {
+  let yelpSchema = await getYelpSchema()
+
   const ourSchema = makeExecutableSchema({
     typeDefs: [
       `
@@ -45,10 +48,9 @@ export const makeSchema = async _ => {
           query: Query
           mutation: Mutation
         }
-      `, 
+      `,
       ...types
-    ],
-    resolvers
+    ]
   })
 
   return mergeSchemas({
@@ -56,8 +58,7 @@ export const makeSchema = async _ => {
       yelpSchema,
       ourSchema,
       linkTypeDefs
-      // ...linkTypeDefs
     ],
-    // resolvers: linkResolvers(yelpSchema)
+    resolvers
   })
 }

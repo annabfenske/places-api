@@ -8,7 +8,7 @@ exports.up = function(knex, Promise) {
             VERSION "1.1";
       `
     )
-    .then(_ => knex.schema.createTable('users', function(table) {
+    .then(() => knex.schema.createTable('users', function(table) {
       table
         .uuid("id")
         .defaultTo(knex.raw("uuid_generate_v4()"))

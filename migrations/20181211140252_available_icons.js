@@ -92,7 +92,7 @@ exports.up = function(knex, Promise) {
 
     table.unique(['name', 'type'])
   })
-    .then(_ => knex.schema.createTable('colors', function(table) {
+    .then(() => knex.schema.createTable('colors', function(table) {
       table
         .uuid('id')
         .defaultTo(knex.raw('uuid_generate_v4()'))
@@ -107,47 +107,14 @@ exports.up = function(knex, Promise) {
       table.unique('name')
       table.unique('hex')
     }))
-    .then(_ => knex.schema.table('user_categories', function(table) {
-      if (knex.schema.hasColumn('user_categories', 'icon')) {
-        table.dropColumn('icon')
-      }
-      if (knex.schema.hasColumn('user_categories', 'color')) {
-        table.dropColumn('color')
-      }
-
-      table
-        .uuid('icon_id')
-        .references('id')
-        .inTable('icons')
-        .notNull()
-      table
-        .uuid('color_id')
-        .references('id')
-        .inTable('colors')
-        .notNull()
-    }))
-    .then(_ => knex('colors').insert(colors))
-    .then(_ => {
+    .then(() => knex('colors').insert(colors))
+    .then(() => {
       let insertIcons = icons.map(name => ({ name, type: 'material' }))
       return knex('icons').insert(insertIcons)
     })
 };
 
 exports.down = function(knex, Promise) {
-  return knex.schema.table('user_categories', function(table) {
-    if (knex.schema.hasColumn('user_categories', 'icon_id')) {
-      table.dropColumn('icon_id')
-    }
-    if (knex.schema.hasColumn('user_categories', 'color_id')) {
-      table.dropColumn('color_id')
-    }
-    table
-      .string('icon')
-      .notNull()
-    table
-      .string('color')
-      .notNull()
-  })
-    .then(_ => knex.schema.dropTable('icons'))
-    .then(_ => knex.schema.dropTable('colors'))
+  return knex.schema.dropTable('icons')
+    .then(() => knex.schema.dropTable('colors'))
 };

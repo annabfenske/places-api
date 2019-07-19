@@ -5,16 +5,15 @@ import { authenticate } from '../../../lib/auth'
 import { ADMIN_EMAIL } from "../../../lib/constants"
 
 export default async (root, args, context, info) => {
-  const { warden } = context
   try {
-    if (args.authenticate && warden.isAuthenticated()) {
+    if (args.authenticate && context.warden.isAuthenticated()) {
       return {
         success: false,
         message: 'Please log out before signing up as a new user.'
       }
     }
 
-    if (!args.authenticate && warden.email !== ADMIN_EMAIL) {
+    if (!args.authenticate && context.warden.email !== ADMIN_EMAIL) {
       return {
         success: false,
         message: 'You are not authorized to create new users.'
@@ -47,13 +46,12 @@ export default async (root, args, context, info) => {
     }
 
     // TODO: authenticated
-    let token, viewer
+    let token, user
 
     if (args.authenticate) {
       let authResult = await authenticate(
         args.email,
         args.password,
-        warden,
         context
       )
 
@@ -65,14 +63,14 @@ export default async (root, args, context, info) => {
       }
 
       token = authResult.token
-      viewer = authResult.user
+      user = authResult.user
     }
 
     return {
       success: true,
       message: 'User successfully created.',
       token,
-      viewer
+      user
     }
 
   } catch (err) {

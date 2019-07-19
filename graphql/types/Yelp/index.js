@@ -1,7 +1,5 @@
-import YelpCategory from './YelpCategory'
-import YelpHours from './YelpHours'
+import Extended_Business from './Business'
 
-export {
-  YelpCategory,
-  YelpHours
-}
+export default [
+  Extended_Business
+]

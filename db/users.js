@@ -31,3 +31,14 @@ export const updateUserById = (id, fields, returning = '*') => {
     .returning(returning)
     .then(rows => rows[0])
 }
+
+export const getUserByCollectionId = (collection_id, returning = '*') => {
+  return knex('collections')
+    .join('users', 'collections.user_id', 'users.id')
+    .where('collections.id', collection_id)
+    .first(
+      typeof returning === 'string'
+        ? `users.${returning}`
+        : returning.map(field => `users.${field}`)
+    )
+}
